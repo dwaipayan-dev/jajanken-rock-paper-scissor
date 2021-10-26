@@ -1,0 +1,10 @@
+
+.imageProp{
+    height: 320px;
+    width: 300px;
+    border-radius: 25%;
+}
+
+.status{
+    text-shadow: -0.5px -0.5px 0 blanchedalmond, 0.5px -0.5px 0 blanchedalmond, -0.5px 0.5px 0 blanchedalmond, 0.5px 0.5px 0 blanchedalmond;
+}
