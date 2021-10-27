@@ -6,7 +6,7 @@ I have made a build file that I am yet to serve on Heroku. So you need a server 
 ```
 npm install -g serve
 ```
-To run the project go to "assignmentLIFEXdeployed\mytable-in-action" and then in the terminal type
+To run the project go to "build" folder and then in the terminal type
 ```
 serve
 ```
