@@ -8,3 +8,9 @@
 .status{
     text-shadow: -0.5px -0.5px 0 blanchedalmond, 0.5px -0.5px 0 blanchedalmond, -0.5px 0.5px 0 blanchedalmond, 0.5px 0.5px 0 blanchedalmond;
 }
+
+.iconProp{
+    height: 50px;
+    width: 50px;
+    filter:invert(100%);
+}

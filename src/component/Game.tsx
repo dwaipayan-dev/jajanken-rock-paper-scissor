@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {FunctionComponent, useState} from 'react';
 import { RouteProps } from 'react-router';
 import { setTimeout } from 'timers';
 import './Game.css';
@@ -6,8 +6,16 @@ import Rock from '../assets/Rock.jpg';
 import Paper from '../assets/Paper.jpg';
 import Scissor from '../assets/Scissor.jpg';
 import Blank from '../assets/Blank.jpg';
+import { Link } from 'react-router-dom';
+
+import rockico from '../assets/rock-icon.svg';
+import paperico from '../assets/paper-icon.svg';
+import scissorico from '../assets/scissor-icon.svg';
+import axios from 'axios';
+
+
 //import 'bootstrap/dist/css/bootstrap.min.css';
-class GameComponent extends React.Component<RouteProps> {
+class GameComponent extends React.Component {
     state: any = {};
     clicked: boolean = false;
     name: String = "";
@@ -20,15 +28,24 @@ class GameComponent extends React.Component<RouteProps> {
                 rock: 0,
                 paper: 0,
                 scissor: 0
-            }, win: 0, draw: 0, loss: 0, clicked: false,
+            }, win: 0, draw: 0, loss: 0, clicked: false, hidden: true, saveMessage: "",
             playerImg: String(Blank), computerImg: String(Blank)
         }
         this.increase = this.increase.bind(this)
         //this.waitOneSec = this.waitOneSec.bind(this)
+        
 
     }
-
+    
     componentDidMount(){
+        axios.get(`https://jajanken-app-api.herokuapp.com/loadState/${this.name}`).then((res)=>{ 
+            console.log(res.data.playerToLoad);
+            this.setState({...res.data.playerToLoad})
+            
+        }).catch((err)=>{
+            console.log(err);
+
+        })
     }
 
     increase() {
@@ -42,6 +59,28 @@ class GameComponent extends React.Component<RouteProps> {
             this.setState({ ...this.state,  playerImg: String(Blank), 
                 computerImg: String(Blank), clicked: false })
         }, 1000);
+    }
+
+    saveMyState(){
+        let reqBody = {...this.state};
+        this.setState({...this.state, hidden: false, saveMessage: "Saving State"});
+        axios.post("https://jajanken-app-api.herokuapp.com/saveState", {
+            name: this.name,
+            state: reqBody
+        }).then((response)=>{
+            console.log(response);
+            this.setState({...this.state, hidden: false, saveMessage: "State Saved"});
+
+            setTimeout(() => {
+                this.setState({ ...this.state, hidden: true, saveMessage: ""});
+            }, 3000);
+
+        }).catch((err)=>{
+            console.log(err);
+        })
+
+
+        
     }
 
     /*Proof of implementation
@@ -128,9 +167,9 @@ aiPredictsUserChoice(freqObj: any, count: number){
     console.log(count);
     if (count === 0) {
         let choiceArr = [];
-        choiceArr[0] = Math.floor(Math.random() * 100);
-        choiceArr[1] = Math.floor(Math.random() * 100);
-        choiceArr[2] = Math.floor(Math.random() * 100);
+        choiceArr[0] = Math.floor(Math.random() * 50 + 15);
+        choiceArr[1] = Math.floor(Math.random() * 50 + 15);
+        choiceArr[2] = Math.floor(Math.random() * 50 + 15);
         return(choiceArr);
     }
     else{
@@ -154,9 +193,9 @@ aiPredictsUserChoice(freqObj: any, count: number){
             rockBias = epsilon;
         }
         console.log(rockBias, paperBias, scissorBias);
-        choiceArr[0] = Math.floor(Math.random() * 100) * rockBias;
-        choiceArr[1] = Math.floor(Math.random() * 100) * paperBias;
-        choiceArr[2] = Math.floor(Math.random() * 100) * scissorBias;
+        choiceArr[0] = Math.floor(Math.random() * 50 + 15) * rockBias;
+        choiceArr[1] = Math.floor(Math.random() * 50 + 15) * paperBias;
+        choiceArr[2] = Math.floor(Math.random() * 50 + 15) * scissorBias;
 
         return choiceArr;
     }
@@ -166,7 +205,24 @@ aiPredictsUserChoice(freqObj: any, count: number){
 render(){
     return (
         <div className = "mt-5">
+            <div className = "float-left ml-2">
+                <button className="btn btn-lg btn-outline-light" onClick = {()=>{
+                    this.saveMyState()
+                    }}>Save Game</button>
+            
+                <div hidden = {this.state.visibility}>{this.state.saveMessage}</div>
+            </div>
+        
+            <div className = "float-right mr-2">
+                
+                <Link to= {"/"}>
+                    <button className="btn btn-outline-light"><h2><span>&#10060;</span></h2></button>
+                </Link>
+            </div>
+
             <h1>Ready {this.name}... Rock... Paper... Scissor... Go!!!!</h1>
+
+            
             <h2>{"Match: " + this.state.count}</h2>
             {/*<h2>{'' + this.state.clicked}</h2>*/}
             {/*<button onClick = {this.increase} disabled = {this.state.clicked}>INCREMENT</button>*/}
@@ -186,19 +242,20 @@ render(){
                 </div>
             </div>
             
+            <div className = "mb-2">
+                <button className= "btn btn-lg btn-danger mr-5 rounded-circle" onClick={()=>{
+                    this.userSelection(0)
+                } } disabled={this.state.clicked}><img src={String(rockico)} className= "iconProp"/></button>
 
-            <button onClick={()=>{
-                this.userSelection(0)
-            } } disabled={this.state.clicked}>ROCK</button>
+                <button className="btn btn-lg btn-warning mr-5 rounded-circle" onClick={()=>{
+                    this.userSelection(1)
+                } } disabled={this.state.clicked}><img src={String(paperico)} className= "iconProp"/></button>
 
-            <button onClick={()=>{
-                this.userSelection(1)
-            } } disabled={this.state.clicked}>PAPER</button>
+                <button className = "btn btn-lg btn-info rounded-circle" onClick={()=>{
+                    this.userSelection(2)
+                } } disabled={this.state.clicked}><img src={String(scissorico)} className= "iconProp"/></button>
 
-            <button onClick={()=>{
-                this.userSelection(2)
-            } } disabled={this.state.clicked}>SCISSOR</button>
-
+            </div>
             
         </div> 
     )
